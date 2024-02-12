@@ -1,14 +1,23 @@
 import React, { useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Box, Modal, Card, CardContent, CardActions, Button, Typography } from '@mui/material'
+import dayjs from 'dayjs';
+import { Box, Modal, Card, CardContent, CardActions, Button, Typography, TextField, FormGroup, Checkbox  } from '@mui/material'
+import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
+import Favorite from '@mui/icons-material/Favorite';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 const modalStyle = {
   position: 'absolute',
+  display: 'flex',
+  flexDirection: 'column',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '440px',
+  height: 'auto',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -17,8 +26,11 @@ const modalStyle = {
   pb: 3,
 }
 
+const label = { inputProps: { 'aria-label': 'Fav' } };
+
 const TaskCard = ({ task, deleteTask, updateTask }) => {
   const [mouseIsOver, setMouseIsOver] = useState(false)
+  const [value, setValue] = React.useState(dayjs('2022-04-17T15:30'));
   const [editMode, setEditMode] = useState(false)
   const [open, setOpen] = React.useState(false)
 
@@ -44,6 +56,7 @@ const TaskCard = ({ task, deleteTask, updateTask }) => {
 
   const toggleEditMode = () => {
     setEditMode(prev => !prev)
+    setOpen(prev => !prev);
     setMouseIsOver(false)
   }
 
@@ -100,7 +113,7 @@ const TaskCard = ({ task, deleteTask, updateTask }) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Button size="small" onClick={handleOpen} color="warning">
+              <Button size="small" onClick={toggleEditMode} color="warning">
                 Edit
               </Button>
               <Button
@@ -123,12 +136,32 @@ const TaskCard = ({ task, deleteTask, updateTask }) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
+          <FormGroup>
+            <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  label="Controlled picker"
+                  value={value}
+                  onChange={(newValue) => setValue(newValue)}
+                />
+              </LocalizationProvider>
+              <Checkbox {...label} icon={<FavoriteBorder />} checkedIcon={<Favorite />} sx={{alignSelf: 'flex-end'}}/>
+            </Box>
+            <TextField
+              required
+              multiline
+              label="Task Name"
+              variant="filled"
+              fullWidth
+              size="small"
+              value={task.content}
+              autoFocus
+              placeholder="Task content here"
+              onChange={(e) => updateTask(task.id, e.target.value)}
+              sx={{marginY: '8px'}}
+            />
+          </FormGroup>
+          
         </Box>
       </Modal>
     </>
